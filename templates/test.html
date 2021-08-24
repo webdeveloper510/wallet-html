@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<div class="row mt20">
+    <div class="col-md-12 text-center">
+        <h4>Create a wallet</h4>
+    </div>
+    <div class="col">
+        <form id="new-wallet-form">
+            <div class="form-group">
+                <label for="walletName">Wallet Name</label>
+                <input type="text" class="form-control" id="walletName" name="walletName" aria-describedby="walletName" placeholder="Enter wallet name">
+            </div>
+            <div class="form-group">
+                <label for="walletPassword">Wallet Password</label>
+                <input type="password" class="form-control" id="walletPassword" name="walletPassword" placeholder="Enter wallet Password">
+            </div>
+            <div class="form-group">
+                <label for="retypePassword">Retype Password</label>
+                <input type="password" class="form-control" id="retypePassword" name="retypePassword" placeholder="Type again your password">
+            </div>
+            <div class="form-group">
+                <input class="form-control form-check-input radio-button" type="radio" name="walletCypher" id="walletCypher" value="Ed25519BC" checked>
+                <label class="form-check-label" for="gridRadios1">
+                    ED25519
+                </label>
+                <br/><br/>
+                <input class="form-control form-check-input radio-button" type="radio" name="walletCypher" id="walletCypher" value="BCQTESLA_PS_1_R2">
+                <label class="form-check-label" for="gridRadios2">
+                    QTESLA Round 2
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    var webappname="http://ip-184-168-122-169.ip.secureserver.net:8080/walletweb-1.0-SNAPSHOT";
+    $(document).ready(function () {
+        $('#new-wallet-form').submit(function (e) {
+            e.preventDefault();
+            var object = {};
+            $('.form-group').each(function (key, val) {
+                let jElem = $(val);
+                jElem.find('.form-control').each(function (innerElKey, innerElVal) {
+                    let innerjElem = $(innerElVal);
+                    if (innerjElem.attr('type') === 'radio' && innerjElem.is(':checked')) {
+                        object[innerjElem.attr('name')] = innerjElem.val();
+                    } else if (innerjElem.attr('type') === 'text' || innerjElem.attr('type') === 'password') {
+                        object[innerjElem.attr('name')] = innerjElem.val();
+                    }
+
+                });
+
+
+            });
+
+            console.log(object);
+
+            $.ajax({
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                type: 'POST',
+                url: webappname+'/resources/javaee8/createWallet',
+                contentType: "application/json",
+                data: JSON.stringify(object)
+            }).done(function (jsonP) {
+                console.log(jsonP);
+                console.log('Wallet successfully created!');
+                goToPage('test_signed_request');
+            }).fail(function () {
+                console.log("Error Occurred");
+            });
+        });
+    })
+
+</script>

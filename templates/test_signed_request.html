@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<div class="row mt20">
+    <div class="col-md-12 text-center">
+        <h4>Log in</h4>
+    </div>
+    <div class="col">
+        <form id="new-wallet-form">
+            <div class="form-group">
+                <label for="walletName">Wallet Name <span class="error hidden"></span>    </label>
+                <input type="text" class="form-control check-form-field not-empty" id="walletName" name="walletName" aria-describedby="walletName" placeholder="Enter Wallet Name">
+            </div>
+            <div class="form-group">
+                <label for="walletPassword">Wallet Password <span class="error hidden"></span></label>
+                <input type="password" class="form-control check-form-field min-length" data-min-length="8" id="walletPassword" name="walletPassword" placeholder="Enter Wallet Password">
+            </div>
+            <div class="form-group">
+                <label for="addressNumber">Wallet Index Number <span class="error hidden"></span></label>
+                <input type="number" class="form-control check-form-field not-empty is-integer" id="addressNumber" name="addressNumber" aria-describedby="addressNumber" placeholder="Enter Wallet Index Number">
+            </div>
+
+            <div class="form-group">
+                <fieldset>
+                    <input class="form-control" type="radio" name="walletCypher" id="Ed25519BC" value="Ed25519BC" /><label for="track" style="position:relative; top:-28px">Ed25519BC</label><br />
+                    <input class="form-control" type="radio" name="walletCypher" id="BCQTESLA_PS_1_R2" value="BCQTESLA_PS_1_R2"  /><label for="event" style="position:relative; top:-28px">BCQTESLA_PS_1_R2</label><br />
+                </fieldset>
+            </div>
+            
+            <hr/>
+            <br/>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+            
+            
+            <div class="form-group not-visible height1">
+                <label for="uuidv4">uuid</label><!--uuidv4()-->
+                <input type="text" class="form-control" id="uuid" name="uuid" aria-describedby="uuid" placeholder="Enter wallet index number">
+            </div>
+
+            
+        </form>
+
+        <div class="alert alert-primary address-result-container hidden" role="alert">
+            Your address is: <b><span class="address-result"></span></b>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    var webappname="http://ip-184-168-122-169.ip.secureserver.net:8080/walletweb-1.0-SNAPSHOT";
+    $(document).ready(function () {
+        $('input').on('change', function () {
+            resetFieldsError($(this));
+        });
+
+
+        $('#uuid').val(uuidv4());
+        $('#new-wallet-form').submit(function (e) {
+            e.preventDefault();
+
+            if (!checkFields(false)) {
+                return false;
+            }
+
+            var object = {};
+            $('.form-group').each(function (key, val) {
+                let jElem = $(val);
+                jElem.find('.form-control').each(function (innerElKey, innerElVal) {
+                    let innerjElem = $(innerElVal);
+                    if (innerjElem.attr('type') === 'radio' && innerjElem.is(':checked')) {
+                        object[innerjElem.attr('name')] = innerjElem.val();
+                    } else if (innerjElem.attr('type') === 'text' || innerjElem.attr('type') === 'password' || innerjElem.attr('type') === 'number') {
+                        object[innerjElem.attr('name')] = innerjElem.val();
+                    } else if (innerjElem.attr('data-type') === 'select') {
+                        object[innerjElem.attr('name')] = innerjElem.val();
+                    }
+
+                });
+            });
+
+            let signedRequestBean = {};
+            signedRequestBean['wallet'] = {};
+
+            for (var key in object) {
+                if (object.hasOwnProperty(key)) {
+                    if (key === 'walletCypher' || key === 'addressNumber' || key === 'walletName' || key === 'walletPassword') {
+                        signedRequestBean['wallet'][key] = object[key];
+                    } else if (key === 'uuid') {
+                        signedRequestBean['uuid'] = object[key];
+                    }
+                }
+            }
+            
+            signedRequestBean['rt'] = 'GET_ADDRESS';
+            signedRequestBean['itb'] = null;
+
+            $.ajax({
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                type: 'POST',
+                url: webappname+'/resources/javaee8/signedRequest',
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(signedRequestBean),
+                success: function (data) {
+                    populateUserMenu(data);
+                    goToPage(null, "logged_home_page");
+                }
+            });
+        });
+    });
+
+</script>

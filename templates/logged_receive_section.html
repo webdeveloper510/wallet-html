@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<div class="row mt20 text-center">
+    <div class="col-md-12 text-center">
+        <span class="section-title">Receive Tokens</span>
+    </div>
+    <div class="col-md-12">
+        <hr/>
+        <br/>
+    </div>
+
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col text-left">
+                <label>Kind of Token</label>
+            </div>
+            <div class="col">
+                <span class="token-type"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <br/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
+                <label>Amount of Tokens</label>
+            </div>
+            <div class="col">
+                <span class="token-amount"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <br/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-left">
+                <label>Kind of Request</label>
+            </div>
+            <div class="col">
+                <span class="request-type"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <br/>
+    </div>
+
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-2">
+                <select class="form-control tokens-type-input check-form-field not-empty">
+                    <option selected="selected" value="">Select</option>
+                    <option value="RED">TKR</option>
+                    <option value="GREEN">TKG</option>
+                </select>
+            </div>
+            <div class="col-md-10">
+                <input type="number" placeholder="Token amount" class="form-control check-form-field not-empty is-integer tokens-amount-input" aria-label="Text input with dropdown button">
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <br/>
+    </div>
+
+    <div class="col-md-12">
+        <textarea placeholder="Insert here a message for recipient" class="receive-msg form-control no-resize"></textarea>
+    </div>
+
+    <div class="col-md-12">
+        <br/>
+        <br/>
+    </div>
+
+    <div class="col-md-12 text-center">
+        <div class="qr-code-container">
+            <span>Qr Code</span>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-10 text-left">
+                <button class="btn btn-secondary" onclick="goToPage($(this))" data-page="logged_home_page">Back</button>
+            </div>
+
+            <div class="col-md-2 text-right">
+                <button class="btn btn-primary font-weight-bold" type="button" id="createQrCode">
+                    <i class="fal fa-qrcode"></i> Create QR
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var webappname="http://ip-184-168-122-169.ip.secureserver.net:8080/walletweb-1.0-SNAPSHOT";
+    $(document).ready(function () {
+        $('.request-type').html(window.signedResponseBean['request']['wallet']['walletCypher']);
+        
+        $('input').on('change', function () {
+            resetFieldsError($(this));
+        });
+
+        $('select').on('change', function () {
+            resetFieldsError($(this));
+        });
+
+        $('#createQrCode').on('click', function (e) {
+            if (!checkFields(false)) {
+                console.log('checked');
+                return false;
+            }
+            let receiveTokenBalanceRequestObj = {};
+            receiveTokenBalanceRequestObj['qAddr'] = $('#wallet-address').html();
+            receiveTokenBalanceRequestObj['qColor'] = $('.tokens-type-input').val();
+            receiveTokenBalanceRequestObj['qValue'] = $('.tokens-amount-input').val();
+            receiveTokenBalanceRequestObj['qMessage'] = $('.receive-msg').val();
+
+            window.signedResponseBean['request']['rt'] = 'RECEIVE_TOKENS';
+            window.signedResponseBean['request']['rtbr'] = receiveTokenBalanceRequestObj;
+
+            $.ajax({
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                type: 'POST',
+                url: webappname + '/resources/javaee8/signedRequest',
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(window.signedResponseBean['request']),
+                success: function (data) {
+                    if (data['base64QrCodeReceiveBalance'] !== '') {
+                        $('.qr-code-container').css({
+                            "border-width": "0px"
+                        });
+                        $('.qr-code-container').html('<img src="data:image/png;base64, ' + data['base64QrCodeReceiveBalance'] + '" alt=""/>');
+                    }
+                }
+            });
+
+        });
+
+        $('.tokens-type-input').on('change', function () {
+            if ($(this).val() === 'RED') {
+                $('.token-type').html('<span class="dot red"></span>');
+            } else if ($(this).val() === 'GREEN') {
+                $('.token-type').html('<span class="dot green"></span>');
+            }
+        });
+
+        $('.tokens-amount-input').on('change', function () {
+            if ($(this).val() > 0) {
+                $('.token-amount').html($(this).val());
+            }
+        });
+    });
+
+</script>

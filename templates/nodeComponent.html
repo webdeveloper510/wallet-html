@@ -1,0 +1,33 @@
+<li class="singleStakeNode">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-2 text-center nopadding">
+                <label id="labelNodeAddr" for="nodeAddr">
+                    <b>{NODE_NAME}</b> <span class="error hidden"></span>
+                </label>
+            </div>
+            <div class="col-md-10 text-center">
+                <label class="labelNodeBookmark">{NODE_SHORT_ADDR}</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2 identicon-container nopadding text-center"> 
+
+            </div>
+            <div class="col-md-10 mt5"> 
+                <textarea readonly name="nodeAddr" data-label-ref="labelNodeAddr" class="form-control nodeAddr" style="resize:none; height:128px">{NODE_ADDR}</textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <br/>
+                <br/>
+            </div>
+        </div>
+        <div class="row"> 
+            <div class="col-md-12 text-right">
+                <span class="btn btn-primary mr-2 font-weight-bold aim-btn" onclick="aimNode($(this))" data-addr="{NODE_ADDR}" data-short-addr="{NODE_SHORT_ADDR}"><i class="fal fa-hand-pointer"></i>&nbsp; Aim on this Node </span>
+            </div>
+        </div>
+    </div>
+</li>

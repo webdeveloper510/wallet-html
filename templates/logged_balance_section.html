@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<div class="row mt20 text-center">
+    <div class="col-md-12 text-center">
+        <span class="section-title">Check Balance</span>
+    </div>
+    <div class="col-md-12">
+        <hr/>
+        <br/>
+    </div>
+
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-3 wallet-container">
+                <span>Wallet Identicon</span>
+            </div>
+            <div class="col-md-9">
+                <textarea placeholder="Paste here your address!" class="form-control check-form-field not-empty no-resize h250 address-field"></textarea>
+            </div>
+            <div class="col-md-12">
+                <br/>
+            </div>
+        </div>
+
+        <div class="row">
+            <table class="table table-striped table-balance">
+                <tbody>
+                    <tr>
+                        <td scope="row">Wallet Cypher</td>
+                        <td><span class="badge-app badge-secondary wallet-cypher-value">N/A</span></td>
+                    </tr>
+                    <tr>
+                        <td scope="row">Tkg</td>
+                        <td><span class="badge-app badge-success tkg-value">N/A</span></td>
+                    </tr>
+                    <tr>
+                        <td scope="row">Tkr</td>
+                        <td><span class="badge-app badge-danger tkr-value">N/A</span></td>
+                    </tr>
+                    <tr>
+                        <td scope="row">Frozen Tkg</td>
+                        <td><span class="badge-app badge-primary ftkg-value">N/A</span></td>
+                    </tr>
+                    <tr>
+                        <td scope="row">Frozen Tkr</td>
+                        <td><span class="badge-app badge-primary ftkr-value">N/A</span></td>
+                    </tr>
+                    <!--<tr>
+                        <td scope="row">Recovery Rounds</td>
+                        <td><span class="badge-app badge-primary">N/A</span></td>
+                    </tr>-->
+                    <tr>
+                        <td scope="row">CRC (Control Code)</td>
+                        <td><span class="badge-app badge-secondary crc-value">N/A</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <br/>
+            </div>
+            <div class="col-md-8 text-left">
+                <button class="btn btn-secondary" onclick="goToPage($(this))" data-page="logged_home_page">Back</button>
+            </div>
+
+            <div class="col-md-4 text-right">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle font-weight-bold" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Submit to
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <br/>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    var webappname="http://ip-184-168-122-169.ip.secureserver.net:8080/walletweb-1.0-SNAPSHOT";
+    $(document).ready(function () {
+        
+        $.ajax({
+            headers: {
+                'Content-Type': "application/json"
+            },
+            type: 'POST',
+            url: webappname + '/resources/javaee8/api_config',
+            contentType: "application/json",
+            dataType: "json",
+            success: function (dataRes) {
+                $.each(dataRes, function (index, value) {
+                    $('.dropdown-menu').append('<a class="dropdown-item submit" onclick="getBalancesEvent($(this));" data-env="' + value['createUrl'] + '" href="#">' + index.split('-')[0] + '</a>');
+                });
+            }
+        });
+
+        $('.address-field').on('change', function () {
+            getBalances($('.env-select-balance').val());
+        });
+    });
+    
+    getBalancesEvent = el => {
+        getBalances(el.attr('data-env')+'balanceof/');
+    };
+
+    getBalances = (env) => {
+        if ($('.address-field').val().toString().length === 44) {
+            $('.wallet-cypher-value').html('ED25519');
+        } else if ($('.address-field').val().toString().length === 19840) {
+            $('.wallet-cypher-value').html('QTESLA');
+        } else {
+            $('.wallet-cypher-value').html('UNKNOWN');
+            return false;
+        }
+        window.signedResponseBean['passedData'] = $('.address-field').val();
+        populateIdenticon(window.signedResponseBean, '.wallet-container', 'wallet-balance-identicon', 250);
+        populateCrc(window.signedResponseBean, '.crc-value');
+        getAddressBalance($('.address-field').val(), {
+            "tkg": ".tkg-value",
+            "tkr": ".tkr-value",
+            "ftkg": ".ftkg-value",
+            "ftkr": ".ftkr-value",
+            "env": env
+        });
+    }
+
+</script>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<div class="singe-message-template template">
+    <div class="row single-message">
+        <div class="col-md-2 button-area text-center">
+            <button class="btn btn-sm btn-success" data-trx-hash="{TRX_HASH}" data-trx-not-before="{TRX_NOT_BEFORE}" onclick="moveToApproved($(this))"><i class="far fa-thumbs-up"></i></button> 
+            <button class="btn btn-sm btn-warning white" data-trx-hash="{TRX_HASH}" data-trx-not-before="{TRX_NOT_BEFORE}" onclick="moveToRejected($(this))"><i class="far fa-thumbs-down"></i></button>
+            <button class="btn btn-sm btn-danger white" data-trx-hash="{TRX_HASH}" data-trx-not-before="{TRX_NOT_BEFORE}" onclick="moveToBlacklist($(this))"><i class="fas fa-ban"></i></button>
+        </div>
+        <div class="col-md-8 address-area text-center">
+            <span>From: {FROM_ADDR}</span>
+            <hr style="border-top: 1px solid rgb(180 180 180)">
+            <span>Transaction Hash: {TRX_HASH}</span>
+        </div>
+        <div class="col-md-2 message-area">
+            <p class="amount">{TRX_AMOUNT} TKR</p>
+            <p class="message-content">{TRX_MSG}</p>
+            <p class="date">{DATE}</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="managed-message-template template">
+    <div class="row single-message managed-message">
+        <div class="col-md-9 address-area nopadding text-center">
+            <span>{TRX_HASH}</span>
+        </div>
+        <div class="col-md-3 message-area nopadding">
+            <p class="amount">{TRX_AMOUNT} TKR</p>
+            <p class="message-content">{TRX_MSG}</p>
+        </div>
+    </div>
+</div>
+
+<div class="empty-message-template template">
+    <div class="row single-message empty-message">
+        <div class="col-md-12 text-center">
+            <p class="empty-message">{MESSAGE}</p>
+        </div>    
+    </div>
+</div>
+
+<div class="row mt20 campaign-page">
+    <div class="col-md-12 text-center">
+        <span class="section-title">Dashboard Campaign</span>
+        <div id="time" data-time="10"></div>
+    </div>
+
+    <div class="col-md-12 mt20 new-messages">
+
+        <!---->
+
+
+    </div>
+
+    <div class="col-md-12">
+        <hr>
+    </div>
+
+    <div class="col-md-5 nopadding mt-3 approved-list">
+        <p class="text-center font-weight-bold">Messaggi approvati</p>
+    </div>
+
+    <div class="col-md-2">
+
+    </div>
+
+    <div class="col-md-5 nopadding mt-3 rejected-list">
+        <p class="text-center font-weight-bold">Messaggi rifiutati</p>
+    </div>
+
+
+</div>
+
+<script>
+var webappname="http://ip-184-168-122-169.ip.secureserver.net:8080/walletweb-1.0-SNAPSHOT";
+    moveToApproved = el => {
+        window.signedResponseBean['request']['rt'] = 'MOVE_TO_APPROVED';
+        window.signedResponseBean['request']['hash'] = el.attr('data-trx-hash');
+        window.signedResponseBean['request']['notBefore'] = el.attr('data-trx-not-before')
+        $.ajax({
+            headers: {
+                'Content-Type': "application/json"
+            },
+            type: 'POST',
+            url: webappname + '/resources/javaee8/signedRequest',
+            contentType: "application/json",
+            data: JSON.stringify(window.signedResponseBean['request']),
+            success: function () {
+                refreshContent();
+            }
+        });
+
+
+    }
+
+    moveToRejected = el => {
+        window.signedResponseBean['request']['rt'] = 'MOVE_TO_REJECTED';
+        window.signedResponseBean['request']['hash'] = el.attr('data-trx-hash');
+        window.signedResponseBean['request']['notBefore'] = el.attr('data-trx-not-before')
+        $.ajax({
+            headers: {
+                'Content-Type': "application/json"
+            },
+            type: 'POST',
+            url: webappname + '/resources/javaee8/signedRequest',
+            contentType: "application/json",
+            data: JSON.stringify(window.signedResponseBean['request']),
+            success: function () {
+                refreshContent();
+            }
+        });
+    }
+
+    moveToBlacklist = el => {
+        window.signedResponseBean['request']['rt'] = 'MOVE_TO_BLACKLIST';
+        window.signedResponseBean['request']['hash'] = el.attr('data-trx-hash');
+        window.signedResponseBean['request']['notBefore'] = el.attr('data-trx-not-before')
+        $.ajax({
+            headers: {
+                'Content-Type': "application/json"
+            },
+            type: 'POST',
+            url: webappname + '/resources/javaee8/signedRequest',
+            contentType: "application/json",
+            data: JSON.stringify(window.signedResponseBean['request']),
+            success: function () {
+                refreshContent();
+            }
+        });
+
+    }
+
+    refreshContent = () => {
+        window.signedResponseBean['request']['rt'] = 'GET_NEW_MESSAGES';
+
+        $.ajax({
+            headers: {
+                'Content-Type': "application/json"
+            },
+            type: 'POST',
+            url: webappname + '/resources/javaee8/signedRequest',
+            contentType: "application/json",
+            data: JSON.stringify(window.signedResponseBean['request']),
+            success: function (dataRes) {
+                let newMessagesList = JSON.parse(dataRes['postReturn']);
+                if (newMessagesList.length > 0) {
+                    $('.new-messages').html('');
+                    $.each(newMessagesList, function (transactionHash, trx) {
+                        let data_trx = JSON.parse(trx);
+                        $('.new-messages').append($('.singe-message-template').html()
+                                .replaceAll("{TRX_HASH}", data_trx['transactionHash'])
+                                .replaceAll("{TRX_NOT_BEFORE}", data_trx['notBefore'])
+                                .replace("{FROM_ADDR}", data_trx['from'])
+                                .replace("{TRX_AMOUNT}", parseInt(data_trx['redValue']) / Math.pow(10, 9))
+                                .replace("{TRX_MSG}", data_trx['message'] === null ? 'N/A' : data_trx['message'])
+                                .replace("{DATE}", new Date(data_trx['notBefore']).toISOString())
+                                );
+                    });
+                } else {
+                    $('.new-messages').html($('.empty-message-template').html().replace('{MESSAGE}', 'Non hai altre donazioni da gestire'));
+                }
+            }
+        });
+
+        window.signedResponseBean['request']['rt'] = 'GET_REJECTED_MESSAGES';
+
+        $.ajax({
+            headers: {
+                'Content-Type': "application/json"
+            },
+            type: 'POST',
+            url: webappname + '/resources/javaee8/signedRequest',
+            contentType: "application/json",
+            data: JSON.stringify(window.signedResponseBean['request']),
+            success: function (dataRes) {
+                let rejectedList = JSON.parse(dataRes['postReturn']);
+                $('.rejected-list').html('<p class="text-center font-weight-bold">Messaggi rifiutati</p>');
+                if (rejectedList.length > 0) {
+                    console.log(JSON.parse(dataRes['postReturn']));
+                    $.each(rejectedList, function (transactionHash, trx) {
+                        let data_trx = JSON.parse(trx);
+                        $('.rejected-list').append($('.managed-message-template').html()
+                                .replace("{TRX_HASH}", data_trx['transactionHash'])
+                                .replace("{TRX_AMOUNT}", parseInt(data_trx['redValue']) / Math.pow(10, 9))
+                                .replace("{TRX_MSG}", data_trx['message'] === null ? 'N/A' : data_trx['message'])
+                                );
+                    });
+                } else {
+                    $('.rejected-list').append($('.empty-message-template').html().replace('{MESSAGE}', 'Lista vuota'));
+                }
+            }
+        });
+
+        $.ajax({
+            headers: {
+                'Content-Type': "application/json"
+            },
+            type: 'GET',
+            url: webappname + '/resources/javaee8/campaign_view/getapprovedmsg/' + $('#wallet-address').html() + '/0',
+            contentType: "application/json",
+            success: function (dataRes) {
+                let approvedList = JSON.parse(dataRes['postReturn']);
+                $('.approved-list').html('<p class="text-center font-weight-bold">Messaggi approvati</p>');
+                if (approvedList.length > 0) {
+                    $.each(approvedList, function (transactionHash, trx) {
+                        let data_trx = JSON.parse(trx);
+                        $('.approved-list').append($('.managed-message-template').html()
+                                .replace("{TRX_HASH}", data_trx['transactionHash'])
+                                .replace("{TRX_AMOUNT}", parseInt(data_trx['redValue']) / Math.pow(10, 9))
+                                .replace("{TRX_MSG}", data_trx['message'] === null ? 'N/A' : data_trx['message'])
+                                );
+                    });
+                } else {
+                    $('.approved-list').append($('.empty-message-template').html().replace('{MESSAGE}', 'Lista vuota'));
+                }
+
+            }
+        });
+
+    }
+
+    $(document).ready(function () {
+        refreshContent();
+
+
+        setInterval(function() {
+            let time = $('#time').attr('data-time') - 1;
+            if (parseInt(time) === 0) {
+                $('#time').attr('data-time', 10);
+            } else {
+                $('#time').attr('data-time', time);
+            }
+            $('#time').html('Next update in: ' + time);
+            
+        }, 1000);
+        
+        setInterval(function () {
+
+            window.signedResponseBean['request']['itb'] = {};
+            fillItb(
+                    $('#wallet-address').html(),
+                    null,
+                    null,
+                    new Date(),
+                    null,
+                    null,
+                    'BLOB',
+                    null,
+                    null,
+                    null);
+
+
+            window.signedResponseBean['request']['rt'] = 'CHECK_NEW_TRANSACTIONS';
+
+            $.ajax({
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                type: 'POST',
+                url: webappname + '/resources/javaee8/signedRequest',
+                contentType: "application/json",
+                data: JSON.stringify(window.signedResponseBean['request'])
+            });
+
+            refreshContent();
+
+        }, 10000);
+
+        window.signedResponseBean['request']['itb'] = {};
+        fillItb(
+                $('#wallet-address').html(),
+                null,
+                null,
+                new Date(),
+                null,
+                null,
+                'BLOB',
+                null,
+                null,
+                null);
+
+
+        window.signedResponseBean['request']['rt'] = 'CREATE_CAMPAIGN';
+
+        $.ajax({
+            headers: {
+                'Content-Type': "application/json"
+            },
+            type: 'POST',
+            url: webappname + '/resources/javaee8/signedRequest',
+            contentType: "application/json",
+            data: JSON.stringify(window.signedResponseBean['request']),
+            success: function (dataRes) {
+                console.log('Campaign created succesfully!');
+            }
+        });
+    });
+</script>

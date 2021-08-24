@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<div class="row mt20">
+    <div class="col-md-12 text-center">
+        <span class="section-title">Blob - File</span>
+    </div>
+    <div class="col-md-12">
+        <hr/>
+        <br/>
+    </div>
+    <div class="col">
+        <form id="new-upload-file-form">
+            <div class="form-group">
+                <label id="labelFromAddr" for="fromAddr">
+                    <b>From</b> <span class="error hidden"></span>    
+                </label>
+                <div class="row">
+                    <div class="col-md-2 nopadding">
+                        <img id="fromAddrIdenticon" width="128" src=""/>
+                    </div>
+                    <div class="col-md-10 nopadding">
+                        <textarea readonly name="fromAddr" id="fromAddr" data-label-ref="labelFromAddr" class="form-control check-form-field not-empty" style="resize: none; height:128px"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col text-right nopadding">
+                        <button class="btn btn-primary upload-btn"><i class="fal fa-cloud-upload"></i> Upload</button>
+                    </div>
+                    <div class="col nopadding">
+                        <input type="file" id="fileupload" style="display:none"/> 
+                        <textarea readonly class="form-control mimetype-area"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group tags-area">
+                <div class="row">
+                    <div class="col-md-12 nopadding">
+                        <input type="text" class="form-control tag-input" placeholder="Write single tags and press Tab!"/>
+                    </div>
+                    <div class="col-md-12 mt20 nopadding">
+                        <label>Tag section</label>
+                    </div>
+                    <div class="col-md-12 nopadding tags-container text-center" data-tags=""></div>
+                </div>
+            </div>
+
+            <div id="accordion">
+                <div class="card">
+                    <div class="card-header text-center collapse-section font-weight-bold" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" id="headingOne">
+                        <i class="fal fa-arrows-v"></i>
+                    </div>
+
+                    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                        <div class="card-body">
+                            <div class="form-group text-center">
+                                <label for="message">
+                                    <b>Transaction json</b>    
+                                </label>
+                                <div class="row">
+                                    <div class="col">
+                                        <textarea name="trxJson" id="trxJson" class="form-control" style="resize: none; height:128px"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 text-center">
+                                    <label for="trxCost" class="font-weight-bold">
+                                        Transaction cost
+                                    </label>
+                                </div>
+                                <div class="col-md-12">
+                                    <div id="trxCost" class="alert alert-success text-center" role="alert">
+                                        <span class="font-weight-bold">N/A</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <br/>
+                    <br/>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8 text-left">
+                    <button class="btn btn-secondary" onclick="goToPage($(this))" data-page="logged_home_page">Back</button>
+                </div>
+
+                <div class="col-md-4 text-right">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <button class="btn btn-secondary mr-2 font-weight-bold verify-btn">Verify</button>
+                        <!--<button type="submit" disabled="disabled" class="btn btn-primary submit-button font-weight-bold">Submit</button>-->
+                        <div class="dropdown">
+                            <button class="btn btn-primary dropdown-toggle font-weight-bold" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Submit to
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-submit-trx" aria-labelledby="dropdownMenuButton">                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </form>
+
+        <br/>
+        <hr/>
+        <div class="alert alert-primary address-result-container hidden" role="alert">
+            Your address is: <b><span class="address-result"></span></b>
+        </div>
+
+    </div>
+
+
+</div>
+
+<script>
+
+var webappname="http://ip-184-168-122-169.ip.secureserver.net:8080/walletweb-1.0-SNAPSHOT";
+
+    $(document).ready(function () {
+        $('.dropdown-toggle').prop('disabled', true);
+        $.ajax({
+            headers: {
+                'Content-Type': "application/json"
+            },
+            type: 'POST',
+            url: webappname + '/resources/javaee8/transactions_config',
+            contentType: "application/json",
+            success: function (dataRes) {
+                $.each(dataRes, function (index, value) {
+                    $('.dropdown-menu-submit-trx').append('<a class="dropdown-item submit" onclick="submitTrx($(this), \'new-upload-file-form\');" data-env="' + value['createUrl'] + '" href="#">' + index.split('-')[0] + '</a>');
+                });
+            }
+        });
+        
+        deleteTag = el => {
+            el.remove();
+            delete window.tags[el.attr('data-value-key')];
+            if (Object.keys(window.tags).length === 0) {
+                $('.no-results').removeClass('hidden');
+            }
+        };
+
+        window.tags = {};
+        window.meta = {};
+        window.frb = {};
+        let numberOfInsertedTags = 0;
+        if (numberOfInsertedTags === 0) {
+            $('.tags-container').html('<span class="no-results">No result :(</span>');
+        }
+
+        $('.tag-input').on('change', function () {
+            if ($(this).val() !== '') {
+                if (Object.keys(window.tags).length === 0) {
+                    $('.no-results').addClass('hidden');
+                }
+                let sep = numberOfInsertedTags === 0 ? '' : ',';
+                if (numberOfInsertedTags === 0) {
+                    $('.no-results').addClass('hidden');
+                }
+                window.tags[numberOfInsertedTags] = $(this).val();
+                let index_tag = numberOfInsertedTags++;
+                $('.tags-container').html(
+                        $('.tags-container').html() +
+                        '<div class="single-tag" data-value-key="' + index_tag + '" id="single-tag-' +
+                        index_tag + '" onclick=deleteTag($(this))>'
+                        + $(this).val() + '</div>'
+                        );
+                $(this).val('');
+            }
+
+        });
+
+        $('.form-control').on('change', function () {
+            resetFieldsError($(this));
+        });
+
+        $('.upload-btn').click(function (e) {
+            e.preventDefault();
+            $('#fileupload').trigger('click');
+        });
+
+        $('#fileupload').on('change', function () {
+            var data = new FormData();
+            var file = $(this)[0].files[0];
+            data.append('file', file);
+
+            $.ajax({
+                url: webappname + '/resources/javaee8/getFileMeta',
+                data: data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                success: function (data) {
+                    window.frb = data;
+                    let result = "";
+                    $.each(data['all'], function (index, value) {
+                        meta[value['key']] = value['value'];
+                        result += value['key'] + "-" + value['value'] + "\n";
+                    });
+                    $('.mimetype-area').val(result + "\n" + "FILE SIZE: " + data['fileSize']);
+                }
+            });
+        });
+
+        $('.verify-btn').on('click', function (e) {
+            e.preventDefault();
+            if (!checkFields(true)) {
+                return false;
+            }
+
+            window.signedResponseBean['request']['itb'] = {};
+            fillItb(
+                    $('#fromAddr').val(),
+                    null,
+                    $('#message').val(),
+                    new Date(),
+                    null,
+                    null,
+                    'BLOB',
+                    null,
+                    null,
+                    null);
+
+            window.signedResponseBean['request']['tags'] = new Array();
+
+            let i = 0;
+            $.each(window.tags, function (index, value) {
+                window.signedResponseBean['request']['tags'].push(value);
+            });
+
+
+            window.signedResponseBean['request']['rt'] = 'BLOB';
+            window.signedResponseBean['request']['frb'] = window.frb;
+
+
+            let objData = {};
+            $.each(window.signedResponseBean['request']['frb']['selected'], function (key, value) {
+                objData[key] = value;
+            });
+
+            objData['tags'] = window.signedResponseBean['request']['tags'];
+            objData['data'] = window.signedResponseBean['request']['frb']['fileContent'];
+
+            window.signedResponseBean['request']['itb']['message'] = JSON.stringify(objData);
+
+
+            delete window.signedResponseBean['request']['frb'];
+            delete window.signedResponseBean['request']['tags'];
+
+            console.log(window.signedResponseBean['request']);
+
+
+            $.ajax({
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                type: 'POST',
+                url: webappname + '/resources/javaee8/signedRequest',
+                contentType: "application/json",
+                data: JSON.stringify(window.signedResponseBean['request']),
+                success: function (dataRes) {
+                    $('.dropdown-toggle').prop('disabled', false);
+                    $('.collapse-section').trigger('click');
+                    $('#trxCost').html('<b>CPU: ' + dataRes['feeBean']['cpu'] / Math.pow(10, 9) + ' MEM: ' + dataRes['feeBean']['memory'] / Math.pow(10, 9) + ' DISK: ' + dataRes['feeBean']['disk'] / Math.pow(10, 9) + '</b>');
+                    $('#trxJson').val(dataRes['trxJson']);
+                    window.signedResponseBean['request']['trxJson'] = dataRes['trxJson'];
+                    $('.submit-button').prop('disabled', false);
+                }
+            });
+        });
+
+        $('.submit').on('click', function () {
+            window.signedResponseBean['request']['env'] = $(this).attr('data-env');
+            $('#new-upload-file-form').submit();
+        });
+
+        $('#new-upload-file-form').submit(function (e) {
+            e.preventDefault();
+            window.signedResponseBean['request']['rt'] = 'SEND_TRX';
+            console.log(window.signedResponseBean['request']);
+            $.ajax({
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                type: 'POST',
+                url: webappname + '/resources/javaee8/signedRequest',
+                contentType: "application/json",
+                data: JSON.stringify(window.signedResponseBean['request']),
+                beforeSend: function () {
+                    $('.page').html('<div class="loading-container"><img src="static/images/loading.gif" alt=""/></div');
+                },
+                success: function () {
+                    goToPage(null, 'success_transaction');
+                },
+                error: function () {
+                    goToPage(null, 'failed_transaction');
+                }
+            });
+        });
+
+        $('#fromAddrIdenticon').attr('src', $('#wallet-identicon').attr('src'));
+        $('#fromAddr').val($('#wallet-address').html());
+
+
+    });
+</script>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Takamaka Web Wallet</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="static/css/bootstrap.min.css">
+        <link rel="stylesheet" href="static/fontawesome6/css/all.css">
+        <link rel="stylesheet" href="static/css/custom.css">
+        <link rel="stylesheet" href="static/css/jquery-confirm.css">
+        <script src="static/fontawesome6/js/all.js"></script>
+        <script src="static/js/jquery3.5.1.js"></script>
+        <script src="static/js/popper.min.js"></script>
+        <script src="static/js/bootstrap.min.js"></script>
+        <script src="static/js/bootstrap.min.js"></script>
+        <script src="static/js/custom.js"></script>
+        <script src="static/js/jquery-confirm.js"></script>
+    </head>
+    <body>
+        <div class="menu-wallet-user">
+            <div class="container">
+                <button class="btn btn-outline-dark btn-open-user-menu"><i class="fal fa-chevron-circle-right"></i></button>
+                <div class="row">
+                    <div class="col text-center identicon-container">
+                        <img width="128" id="wallet-identicon" src=""/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Address </label>
+                        <p id="wallet-address"></p>
+                    </div>
+                </div>
+                <div class="row" style="margin-bottom: 20px">
+                    <div class="col">
+                        <label>Key </label>
+                        <p id="wallet-key"></p>
+                    </div>
+                    <div class="col">
+                        <label>CRC </label>
+                        <p id="wallet-crc"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <select class="form-control env-select-balance">
+                            <!--                            <option value="https://dev.takamaka.io/api/V2/nodeapi/balanceof/">MAIN NETWORK</option>
+                                                        <option value="https://dev.takamaka.io/api/V2/testapi/balanceof/">TEST</option>-->
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <br/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>TKG </label>
+                        <p id="wallet-tkg"></p>
+                    </div>
+                    <div class="col">
+                        <label>TKR </label>
+                        <p id="wallet-tkr"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>FTKG </label>
+                        <p id="wallet-ftkg"></p>
+                    </div>
+                    <div class="col">
+                        <label>FTKR </label>
+                        <p id="wallet-ftkr"></p>
+                    </div>
+                </div>
+                <div class="row mb10">
+                    <div class="col text-center">
+                        <button class="btn btn-sm btn-secondary btn-show-secret-words"><b>Show secret Words!</b></button>
+                    </div>
+                </div>
+                <div class="row mb10 hidden secret-words-container">
+                    <div class="col">
+                        <textarea id="secret-words" class="form-control no-resize"></textarea>  
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br/>
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">
+                    <img src="static/images/takamaka_400.png" alt=""/>
+                </div>
+            </div>
+
+            <div class="page">
+            </div>
+
+        </div>
+
+        <div class ="row main-logged-menu-misc" >
+            <div class="btn-group btn-group-sm upper-menu" role="group">
+                <button type="button" class="btn  btn-tkm first home" onclick="goToPage($(this))" data-page="logged_home_page"><i class="fal fa-home"></i> <span>Home</span></button>
+                <button type="button" class="btn btn-tkm first" onclick="goToPage($(this))" data-page="test_signed_request"><i class="fal fa-wallet"></i> <span>New Login</span></button>
+                <button type="button" class="btn btn-tkm first" onclick="goToPage($(this))" data-page="recover_wallet"><i class="fal fa-recycle"></i> <span>Recover Wallet</span></button>
+                <!--<button type="button" class="btn btn-tkm first nav-btn" data-page="test_signed_request"><i class="fal fa-question"></i> <span>Help</span></button>-->
+                <button type="button" class="btn btn-tkm first" data-toggle="modal" data-target="#aboutModal"><i class="fal fa-info"></i> <span>About</span></button>
+            </div>
+
+        </div>
+
+
+    </body>
+    <!-- Modal -->
+    <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="aboutModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aboutModalLabel">About us</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h4> Takamaka project is developed by Ailia SA</h4>
+                    <p style="text-align:justify;">
+                        Our company is based in Switzerland, active in the field of "IT services" 
+                        and innovation in the sectors of blockchain and AI technological transformation. 
+                        Mario Carlini, current CEO, acquired AiliA SA in early 2018 and, following a 
+                        first and in-depth study on the functionality of public Blockchains, he establish Takamaka. 
+                        The team consists of the best professionals in IT and mathematics and cryptography, 
+                        both Italian and Swiss.
+
+                    </p>
+                </div>
+                <div>
+
+                    <ul>
+                        <li>Product Version:  Takamaka Web Wallet</li>
+                        <li>Give us your feedback:  <a href="mailto: info@takamaka.io"> info@takamaka.io </a></li>
+
+                    </ul>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var webappname="http://ip-184-168-122-169.ip.secureserver.net:8080/walletweb-1.0-SNAPSHOT";
+        $(document).ready(function () {
+            if (webappname === undefined || webappname === '') {
+                let splittedHref = window.location.href.toString();
+                //webappname = splittedHref[0] + '/' + splittedHref[1] + "/" + splittedHref[2] + "/" + splittedHref[3];
+
+                if (window.location.href.toString().substr(window.location.href.toString().length - 1) === '#') {
+                    webappname = window.location.href.toString().slice(0, -2);
+                } else {
+                    webappname = window.location.href.toString().slice(0, -1);
+                }
+            }
+
+            goToPage(null, 'test_signed_request');
+
+            $.ajax({
+              
+                headers: {
+                    "accept": "application/json",
+                    "Access-Control-Allow-Origin":"*"
+                },
+                crossDomain: true,
+                type: 'POST',
+                
+                url: webappname + '/resources/javaee8/api_config',
+                contentType: "application/json",
+                dataType: "json",
+                success: function (dataRes) {
+                    let first = true;
+                    $.each(dataRes, function (index, value) {
+                        if (first) {
+                            $('.env-select-balance').append('<option selected="selected" value="'+value['createUrl']+'balanceof/">'+index.split('-')[0]+'</option>');
+                            first = !first;
+                        } else {
+                            $('.env-select-balance').append('<option value="'+value['createUrl']+'balanceof/">'+index.split('-')[0]+'</option>');
+                        }
+                        
+                    });
+                    getAddressBalance($('#wallet-address').html(), null);
+                }
+            });
+
+            $('.env-select-balance').on('change', function () {
+                getAddressBalance($('#wallet-address').html(), null);
+            });
+
+            $('.btn-show-secret-words').on('click', function () {
+                if ($('.secret-words-container').hasClass('hidden')) {
+                    $('.secret-words-container').removeClass('hidden');
+                    $(this).parent().parent().addClass('hidden');
+                }
+            });
+
+            $('.btn-open-user-menu').on('click', function () {
+                if ($('#wallet-address').html() === '') {
+                    $.alert({
+                        title: 'Hi there!',
+                        type: 'blue',
+                        content: 'First login to your wallet !'
+                    });
+                    return false;
+                }
+
+                if ($('.menu-wallet-user').hasClass("slide-in-user-menu")) {
+                    $('.menu-wallet-user').removeClass("slide-in-user-menu");
+                    $('.menu-wallet-user').addClass("slide-out-user-menu");
+                    $(this).css({WebkitTransform: 'rotate(' + 360 * -1 + 'deg)'});
+                    $(this).css({'-moz-transform': 'rotate(' + 360 * -1 + 'deg)'});
+
+                } else {
+                    $('.menu-wallet-user').removeClass("slide-out-user-menu");
+                    $('.menu-wallet-user').addClass("slide-in-user-menu");
+                    $(this).css({WebkitTransform: 'rotate(' + 180 + 'deg)'});
+                    $(this).css({'-moz-transform': 'rotate(' + 180 + 'deg)'});
+                }
+            });
+
+            $('.open-menu-btn').on('click', function () {
+                if ($('.menu-wallet-bar').hasClass("slide-in")) {
+                    $('.menu-wallet-bar').removeClass("slide-in");
+                    $('.menu-wallet-bar').addClass("slide-out");
+                } else {
+                    $('.menu-wallet-bar').removeClass("slide-out");
+                    $('.menu-wallet-bar').addClass("slide-in");
+                }
+            });
+        });
+
+    </script>
+
+</html>
